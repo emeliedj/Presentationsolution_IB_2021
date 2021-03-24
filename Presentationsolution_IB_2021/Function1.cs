@@ -11,8 +11,8 @@ namespace Presentationsolution_IB_2021
 {
     public static class Function1
     {
-        [FunctionName("Function1")]
-        public static async Task<IActionResult> Run(
+        [FunctionName("GetWeather")]
+        public static async Task<IActionResult> GetWeather(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
         {
