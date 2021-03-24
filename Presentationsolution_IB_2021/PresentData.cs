@@ -42,6 +42,25 @@ namespace Presentationsolution_IB_2021
             return new OkObjectResult(segment);
         }
 
+        
+        [FunctionName("GetWeatherDate")]
+        public static IActionResult GetWeatherDate(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "weather/datum/{datum}")] HttpRequest req,
+                [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata, ILogger log, string datum)
+        {
+
+            string tid = nameof(WeatherEntity.Tid);
+            string datumet = tid.Substring(0, 9);
+
+            var filterQuery = TableQuery.GenerateFilterCondition(
+                datumet,
+                QueryComparisons.Equal, datum);
+
+            var query = new TableQuery<WeatherEntity>().Where(filterQuery);
+            var segment = weatherdata.ExecuteQuerySegmented(query, null);
+            return new OkObjectResult(segment);
+        }
+
     }
 
 
