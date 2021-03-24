@@ -29,13 +29,31 @@ namespace Presentationsolution_IB_2021
 
      [FunctionName("GetWeatherSource")]
         public static IActionResult GetWeatherStation(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "weather/{partitionKey}")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "weather/partitionKey/{partitionKey}")] HttpRequest req,
                 [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata, ILogger log, string partitionKey)
         {
 
             var filterQuery = TableQuery.GenerateFilterCondition(
                 nameof(WeatherEntity.PartitionKey),
                 QueryComparisons.Equal, partitionKey);
+
+            var query = new TableQuery<WeatherEntity>().Where(filterQuery);
+            var segment = weatherdata.ExecuteQuerySegmented(query, null);
+            return new OkObjectResult(segment);
+        }
+
+        [FunctionName("GetGrad")]
+        public static IActionResult GetGrad(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "weather/datum/{datum}")] HttpRequest req,
+                [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata, ILogger log, string datum)
+        {
+
+            string tid = nameof(WeatherEntity.Tid);
+            string datumet = tid.Substring(0, 9);
+
+            var filterQuery = TableQuery.GenerateFilterCondition(
+                datumet,
+                QueryComparisons.Equal, datum);
 
             var query = new TableQuery<WeatherEntity>().Where(filterQuery);
             var segment = weatherdata.ExecuteQuerySegmented(query, null);
