@@ -54,11 +54,11 @@ namespace Presentationsolution_IB_2021
 
             string startDateFilter = TableQuery.GenerateFilterCondition(
              nameof(WeatherEntity.Tid),
-             QueryComparisons.Equal, startDate);
+             QueryComparisons.GreaterThanOrEqual, startDate);
 
             string endDateFilter = TableQuery.GenerateFilterCondition(
             nameof(WeatherEntity.Tid),
-            QueryComparisons.Equal, endDate);
+            QueryComparisons.LessThanOrEqual, endDate);
 
 
 
@@ -66,7 +66,7 @@ namespace Presentationsolution_IB_2021
             //string dateFilter = TableQuery.CombineFilters(
             //    TableQuery.CombineFilters(sourceFilter, TableOperators.And, startDateFilter), QueryComparisons.GreaterThanOrEqual, endDateFilter);
 
-            string dateFilter = TableQuery.CombineFilters(sourceFilter, TableOperators.And, startDateFilter);
+            string dateFilter = TableQuery.CombineFilters(startDateFilter, TableOperators.And, endDateFilter);
 
 
 
