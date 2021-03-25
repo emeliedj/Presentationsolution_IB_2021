@@ -52,9 +52,26 @@ namespace Presentationsolution_IB_2021
               QueryComparisons.Equal, source);
 
 
+
+
+           string tid = nameof(WeatherEntity.Tid).Substring(0, 9);
+
+           string startDateCheck = TableQuery.GenerateFilterCondition(
+           tid,
+           QueryComparisons.Equal, startDate);
+
+           string endDateCheck = TableQuery.GenerateFilterCondition(
+           tid,
+           QueryComparisons.Equal, endDate);
+
+
+            string exist = TableQuery.CombineFilters(startDateCheck, TableOperators.And, endDateCheck);
+
+           
+            
             string startDateFilter = TableQuery.GenerateFilterCondition(
-             nameof(WeatherEntity.Tid),
-             QueryComparisons.GreaterThanOrEqual, startDate);
+            nameof(WeatherEntity.Tid),
+            QueryComparisons.GreaterThanOrEqual, startDate);
 
             string endDateFilter = TableQuery.GenerateFilterCondition(
             nameof(WeatherEntity.Tid),
@@ -62,14 +79,17 @@ namespace Presentationsolution_IB_2021
 
 
 
-            string dateFilter = TableQuery.CombineFilters(startDateFilter, TableOperators.And, endDateFilter);
 
-            string finalfilter = TableQuery.CombineFilters(dateFilter, TableOperators.And, sourceFilter);
+            string controlFilter = TableQuery.CombineFilters(exist, TableOperators.And, sourceFilter);
+
+            string datefilter = TableQuery.CombineFilters(startDateFilter, TableOperators.And, endDateFilter);
+
+            string finalFilter = TableQuery.CombineFilters(datefilter, TableOperators.And, controlFilter);
 
 
 
 
-            var query = new TableQuery<WeatherEntity>().Where(finalfilter);
+            var query = new TableQuery<WeatherEntity>().Where(finalFilter);
             var segment = weatherdata.ExecuteQuerySegmented(query, null);
             return new OkObjectResult(segment);
         }
