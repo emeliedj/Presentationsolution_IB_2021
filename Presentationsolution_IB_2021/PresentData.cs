@@ -62,8 +62,12 @@ namespace Presentationsolution_IB_2021
 
 
 
-            string dateFilter = TableQuery.CombineFilters(
-                TableQuery.CombineFilters(sourceFilter, TableOperators.And, startDateFilter), QueryComparisons.GreaterThanOrEqual, endDateFilter);
+
+            //string dateFilter = TableQuery.CombineFilters(
+            //    TableQuery.CombineFilters(sourceFilter, TableOperators.And, startDateFilter), QueryComparisons.GreaterThanOrEqual, endDateFilter);
+
+            string dateFilter = TableQuery.CombineFilters(sourceFilter, TableOperators.And, startDateFilter);
+
 
 
 
