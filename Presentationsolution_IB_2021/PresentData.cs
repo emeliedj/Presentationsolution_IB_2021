@@ -51,13 +51,15 @@ namespace Presentationsolution_IB_2021
               nameof(WeatherEntity.PartitionKey),
               QueryComparisons.Equal, source);
 
+            var length = nameof(WeatherEntity.Tid).Length - 9;
+
 
             string startDateFilter = TableQuery.GenerateFilterCondition(
-             nameof(WeatherEntity.Tid),
+             nameof(WeatherEntity.Tid).Substring(0, length),
              QueryComparisons.GreaterThanOrEqual, startDate);
 
             string endDateFilter = TableQuery.GenerateFilterCondition(
-            nameof(WeatherEntity.Tid),
+            nameof(WeatherEntity.Tid).Substring(0, length),
             QueryComparisons.LessThanOrEqual, endDate);
 
 
