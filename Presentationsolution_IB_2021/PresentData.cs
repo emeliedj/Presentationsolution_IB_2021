@@ -53,25 +53,23 @@ namespace Presentationsolution_IB_2021
 
 
             string startDateFilter = TableQuery.GenerateFilterCondition(
-             nameof(WeatherEntity.Tid),
+             nameof(WeatherEntity.Tid).Substring(0,9),
              QueryComparisons.GreaterThanOrEqual, startDate);
 
             string endDateFilter = TableQuery.GenerateFilterCondition(
-            nameof(WeatherEntity.Tid),
+            nameof(WeatherEntity.Tid).Substring(0,9),
             QueryComparisons.LessThanOrEqual, endDate);
 
 
 
-
-            //string dateFilter = TableQuery.CombineFilters(
-            //    TableQuery.CombineFilters(sourceFilter, TableOperators.And, startDateFilter), QueryComparisons.GreaterThanOrEqual, endDateFilter);
-
             string dateFilter = TableQuery.CombineFilters(startDateFilter, TableOperators.And, endDateFilter);
 
+            string finalfilter = TableQuery.CombineFilters(dateFilter, TableOperators.And, sourceFilter);
 
 
 
-            var query = new TableQuery<WeatherEntity>().Where(dateFilter);
+
+            var query = new TableQuery<WeatherEntity>().Where(finalfilter);
             var segment = weatherdata.ExecuteQuerySegmented(query, null);
             return new OkObjectResult(segment);
         }
