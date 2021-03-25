@@ -42,18 +42,28 @@ namespace Presentationsolution_IB_2021
 
         [FunctionName("GetWeatherByDate")]
         public static IActionResult GetWeatherDate(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "weather/source/{source}")] HttpRequest req,
-                [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata, ILogger log, string source)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "weather/source/{source}/startDate/{startDate}/endDate/{endDate}")] HttpRequest req,
+                [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata, ILogger log, string source, string startDate, string endDate)
         {
 
+           
             string sourceFilter = TableQuery.GenerateFilterCondition(
               nameof(WeatherEntity.PartitionKey),
               QueryComparisons.Equal, source);
 
 
+            string startDateFilter = TableQuery.GenerateFilterCondition(
+             nameof(WeatherEntity.Tid),
+             QueryComparisons.Equal, startDate);
+
+            string endDateFilter = TableQuery.GenerateFilterCondition(
+            nameof(WeatherEntity.Tid),
+            QueryComparisons.Equal, endDate);
+
+
 
             string dateFilter = TableQuery.CombineFilters(
-                TableQuery.CombineFilters(sourceFilter, TableOperators.And, "2021-03-25T09:00:00"), TableOperators.And, "2021-03-30T10:00:00");
+                TableQuery.CombineFilters(sourceFilter, TableOperators.And, startDateFilter), TableOperators.And, endDateFilter);
             
 
             var query = new TableQuery<WeatherEntity>().Where(dateFilter);
