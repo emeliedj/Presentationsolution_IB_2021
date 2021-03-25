@@ -54,7 +54,7 @@ namespace Presentationsolution_IB_2021
 
 
 
-           string tid = nameof(WeatherEntity.Tid).Substring(0, 9);
+           string tid = nameof(WeatherEntity.Tid);
 
            string startDateCheck = TableQuery.GenerateFilterCondition(
            tid,
