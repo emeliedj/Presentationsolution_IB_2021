@@ -53,11 +53,11 @@ namespace Presentationsolution_IB_2021
 
 
             string startDateFilter = TableQuery.GenerateFilterCondition(
-             nameof(WeatherEntity.Tid).Substring(0,9),
+             nameof(WeatherEntity.Tid),
              QueryComparisons.GreaterThanOrEqual, startDate);
 
             string endDateFilter = TableQuery.GenerateFilterCondition(
-            nameof(WeatherEntity.Tid).Substring(0,9),
+            nameof(WeatherEntity.Tid),
             QueryComparisons.LessThanOrEqual, endDate);
 
 
