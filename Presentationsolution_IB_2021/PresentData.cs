@@ -51,17 +51,15 @@ namespace Presentationsolution_IB_2021
               nameof(WeatherEntity.PartitionKey),
               QueryComparisons.Equal, source);
 
-            var length = nameof(WeatherEntity.Tid).Length - 9;
-
-
+         
+            
             string startDateFilter = TableQuery.GenerateFilterCondition(
-             nameof(WeatherEntity.Tid).Substring(0, length),
+             nameof(WeatherEntity.Tid),
              QueryComparisons.GreaterThanOrEqual, startDate);
 
             string endDateFilter = TableQuery.GenerateFilterCondition(
-            nameof(WeatherEntity.Tid).Substring(0, length),
+            nameof(WeatherEntity.Tid),
             QueryComparisons.LessThanOrEqual, endDate);
-
 
 
 
@@ -70,7 +68,7 @@ namespace Presentationsolution_IB_2021
             string finalfilter = TableQuery.CombineFilters(dateFilter, TableOperators.And, sourceFilter);
 
 
-
+            
 
             var query = new TableQuery<WeatherEntity>().Where(finalfilter);
             var segment = weatherdata.ExecuteQuerySegmented(query, null);
