@@ -59,7 +59,7 @@ namespace Presentationsolution_IB_2021
 
             string endDateFilter = TableQuery.GenerateFilterCondition(
             nameof(WeatherEntity.Tid),
-            QueryComparisons.LessThanOrEqual, endDate);
+            QueryComparisons.LessThanOrEqual, endDate + 1);
 
 
 
