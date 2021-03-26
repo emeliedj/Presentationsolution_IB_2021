@@ -68,10 +68,10 @@ namespace Presentationsolution_IB_2021
             string finalfilter = TableQuery.CombineFilters(dateFilter, TableOperators.And, sourceFilter);
 
 
-            
 
-            var query = new TableQuery<WeatherEntity>().Where(finalfilter);
-            var segment = weatherdata.ExecuteQuerySegmented(query, null);
+
+            TableQuery<WeatherEntity> rangeQuery = new TableQuery<WeatherEntity>().Where(finalfilter);
+            var segment = weatherdata.ExecuteQuerySegmented(rangeQuery, null);
             return new OkObjectResult(segment);
         }
 
