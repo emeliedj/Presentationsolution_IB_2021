@@ -51,19 +51,28 @@ namespace Presentationsolution_IB_2021
               nameof(WeatherEntity.PartitionKey),
               QueryComparisons.Equal, source);
 
-         
-            
-            string startDateFilter = TableQuery.GenerateFilterCondition(
+            string exist = TableQuery.CombineFilters(TableQuery.GenerateFilterCondition(nameof(WeatherEntity.Tid).Substring(0,9), QueryComparisons.Equal, startDate), TableOperators.And, TableQuery.GenerateFilterCondition(nameof(WeatherEntity.Tid).Substring(0, 9), QueryComparisons.Equal, endDate));
+
+
+
+
+            //string startDateFilter = TableQuery.GenerateFilterCondition(
+            // nameof(WeatherEntity.Tid),
+            // QueryComparisons.GreaterThanOrEqual, startDate);
+
+            //string endDateFilter = TableQuery.GenerateFilterCondition(
+            //nameof(WeatherEntity.Tid),
+            //QueryComparisons.LessThanOrEqual, endDate);
+
+            string dates = TableQuery.CombineFilters(TableQuery.GenerateFilterCondition(
              nameof(WeatherEntity.Tid),
-             QueryComparisons.GreaterThanOrEqual, startDate);
-
-            string endDateFilter = TableQuery.GenerateFilterCondition(
+             QueryComparisons.GreaterThanOrEqual, startDate), TableOperators.And, TableQuery.GenerateFilterCondition(
             nameof(WeatherEntity.Tid),
-            QueryComparisons.LessThanOrEqual, endDate + 1);
+            QueryComparisons.LessThanOrEqual, endDate));
 
 
 
-            string dateFilter = TableQuery.CombineFilters(startDateFilter, TableOperators.And, endDateFilter);
+            string dateFilter = TableQuery.CombineFilters(exist, TableOperators.And, dates);
 
             string finalfilter = TableQuery.CombineFilters(dateFilter, TableOperators.And, sourceFilter);
 
