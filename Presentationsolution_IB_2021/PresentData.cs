@@ -51,7 +51,7 @@ namespace Presentationsolution_IB_2021
               nameof(WeatherEntity.PartitionKey),
               QueryComparisons.Equal, source);
 
-            string exist = TableQuery.CombineFilters(TableQuery.GenerateFilterCondition(nameof(WeatherEntity.Tid).Substring(0,9), QueryComparisons.Equal, startDate), TableOperators.And, TableQuery.GenerateFilterCondition(nameof(WeatherEntity.Tid).Substring(0, 9), QueryComparisons.Equal, endDate));
+            //string exist = TableQuery.CombineFilters(TableQuery.GenerateFilterCondition(WeatherEntity.Substring(0,9), QueryComparisons.Equal, startDate), TableOperators.And, TableQuery.GenerateFilterCondition(nameof(WeatherEntity.Tid).Substring(0, 9), QueryComparisons.Equal, endDate));
 
 
 
@@ -65,23 +65,29 @@ namespace Presentationsolution_IB_2021
             //QueryComparisons.LessThanOrEqual, endDate);
 
             string dates = TableQuery.CombineFilters(TableQuery.GenerateFilterCondition(
-             nameof(WeatherEntity.Tid),
+             "Tid",
              QueryComparisons.GreaterThanOrEqual, startDate), TableOperators.And, TableQuery.GenerateFilterCondition(
-            nameof(WeatherEntity.Tid),
+            "Tid",
             QueryComparisons.LessThanOrEqual, endDate));
 
 
 
-            string dateFilter = TableQuery.CombineFilters(exist, TableOperators.And, dates);
+            //string dateFilter = TableQuery.CombineFilters(dates, TableOperators.And, source);
 
-            string finalfilter = TableQuery.CombineFilters(dateFilter, TableOperators.And, sourceFilter);
+            string finalfilter = TableQuery.CombineFilters(dates, TableOperators.And, sourceFilter);
 
 
 
 
             TableQuery<WeatherEntity> rangeQuery = new TableQuery<WeatherEntity>().Where(finalfilter);
             var segment = weatherdata.ExecuteQuerySegmented(rangeQuery, null);
+       
             return new OkObjectResult(segment);
+
+            foreach (WeatherEntity entity in segment) {
+                Console.WriteLine("Weather: {0}, {1}, {2}, {3}", entity.PartitionKey, entity.Grad, entity.Tid, entity.Vindstyrka, entity.Nederbörd);
+            }
+           
         }
 
     }
