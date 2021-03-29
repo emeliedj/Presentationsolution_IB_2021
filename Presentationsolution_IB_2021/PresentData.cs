@@ -8,11 +8,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Microsoft.Azure.Cosmos.Table;
-using Microsoft.Azure.WebJobs.Host;
+
 
 namespace Presentationsolution_IB_2021
 {
     public static class PresentData {
+       
         [FunctionName("GetAllWeather")]
         public static async Task<IActionResult> GetWeather(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "weather")] HttpRequest req,
@@ -51,9 +52,7 @@ namespace Presentationsolution_IB_2021
               nameof(WeatherEntity.PartitionKey),
               QueryComparisons.Equal, source);
 
-            //string exist = TableQuery.CombineFilters(TableQuery.GenerateFilterCondition(WeatherEntity.Substring(0,9), QueryComparisons.Equal, startDate), TableOperators.And, TableQuery.GenerateFilterCondition(nameof(WeatherEntity.Tid).Substring(0, 9), QueryComparisons.Equal, endDate));
-
-
+          
 
 
             //string startDateFilter = TableQuery.GenerateFilterCondition(
@@ -65,14 +64,12 @@ namespace Presentationsolution_IB_2021
             //QueryComparisons.LessThanOrEqual, endDate);
 
             string dates = TableQuery.CombineFilters(TableQuery.GenerateFilterCondition(
-             "Tid",
+             nameof(WeatherEntity.Tid),
              QueryComparisons.GreaterThanOrEqual, startDate), TableOperators.And, TableQuery.GenerateFilterCondition(
-            "Tid",
+             nameof(WeatherEntity.Tid),
             QueryComparisons.LessThanOrEqual, endDate));
 
 
-
-            //string dateFilter = TableQuery.CombineFilters(dates, TableOperators.And, source);
 
             string finalfilter = TableQuery.CombineFilters(dates, TableOperators.And, sourceFilter);
 
@@ -85,9 +82,10 @@ namespace Presentationsolution_IB_2021
             return new OkObjectResult(segment);
 
             foreach (WeatherEntity entity in segment) {
-                Console.WriteLine("Weather: {0}, {1}, {2}, {3}", entity.PartitionKey, entity.Grad, entity.Tid, entity.Vindstyrka, entity.Nederbörd);
+                log.LogInformation(
+                    $"{entity.PartitionKey}\t{entity.RowKey}\t{entity.Timestamp}\t{entity.Tid}");
             }
-           
+
         }
 
     }
