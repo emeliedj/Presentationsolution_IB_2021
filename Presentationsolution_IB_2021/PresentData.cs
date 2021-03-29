@@ -52,26 +52,22 @@ namespace Presentationsolution_IB_2021
               nameof(WeatherEntity.PartitionKey),
               QueryComparisons.Equal, source);
 
-          
 
 
-            //string startDateFilter = TableQuery.GenerateFilterCondition(
-            // nameof(WeatherEntity.Tid),
-            // QueryComparisons.GreaterThanOrEqual, startDate);
 
-            //string endDateFilter = TableQuery.GenerateFilterCondition(
-            //nameof(WeatherEntity.Tid),
-            //QueryComparisons.LessThanOrEqual, endDate);
-
-            string dates = TableQuery.CombineFilters(TableQuery.GenerateFilterCondition(
+            string startDateFilter = TableQuery.GenerateFilterCondition(
              nameof(WeatherEntity.Tid),
-             QueryComparisons.GreaterThanOrEqual, startDate), TableOperators.And, TableQuery.GenerateFilterCondition(
-             nameof(WeatherEntity.Tid),
-            QueryComparisons.LessThanOrEqual, endDate));
+             QueryComparisons.GreaterThanOrEqual, startDate);
+
+            string endDateFilter = TableQuery.GenerateFilterCondition(
+            nameof(WeatherEntity.Tid),
+            QueryComparisons.LessThanOrEqual, endDate);
 
 
 
-            string finalfilter = TableQuery.CombineFilters(dates, TableOperators.And, sourceFilter);
+
+
+            string finalfilter = TableQuery.CombineFilters(TableQuery.CombineFilters(sourceFilter, TableOperators.And, startDateFilter), TableOperators.And, endDateFilter);
 
 
 
@@ -81,10 +77,7 @@ namespace Presentationsolution_IB_2021
        
             return new OkObjectResult(segment);
 
-            foreach (WeatherEntity entity in segment) {
-                log.LogInformation(
-                    $"{entity.PartitionKey}\t{entity.RowKey}\t{entity.Timestamp}\t{entity.Tid}");
-            }
+        
 
         }
 
