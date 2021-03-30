@@ -77,9 +77,9 @@ namespace Presentationsolution_IB_2021
 
         [FunctionName("GetWeatherByType")]
         public static async Task<IActionResult> GetWeatherByType(
-           [HttpTrigger(AuthorizationLevel.Function, "get", Route = "weather/source/{source}/startDate/{startDate}/endDate/{endDate}/typ/{WeatherType}")] HttpRequest req,
+           [HttpTrigger(AuthorizationLevel.Function, "get", Route = "weather/source/{source}/startDate/{startDate}/endDate/{endDate}/typ/{typ}")] HttpRequest req,
            [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata,
-           ILogger log, string source, string startDate, string endDate, int WeatherType)
+           ILogger log, string source, string startDate, string endDate, string typ)
         {
             string sourceFilter = TableQuery.GenerateFilterCondition(
             nameof(WeatherEntity.PartitionKey),
@@ -95,50 +95,65 @@ namespace Presentationsolution_IB_2021
 
             string finalfilter = TableQuery.CombineFilters(TableQuery.CombineFilters(sourceFilter, TableOperators.And, startDateFilter), TableOperators.And, endDateFilter);
 
-            string typ;
-
-            if (WeatherType.Equals(0))
-            {
-                typ = "Nederbörd";
-            }
-            else if (WeatherType.Equals(1))
-            {
-                typ = "Grad";
-            }
-            else { 
-                typ = "Vindstyrka";
-            }
 
 
-            TableQuery<WeatherSorted> projectionQuery = new TableQuery<WeatherSorted>().Where(finalfilter).Select(
+      
+            TableQuery<WeatherEntity> projectionQuery = new TableQuery<WeatherEntity>().Where(finalfilter).Select(
               new string[] { "PartitionKey", "Tid", typ });
 
             var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
-            List<WeatherSorted> weather = new List<WeatherSorted>(); 
+            List<WeatherNederbörd> weatherNederbörd = new List<WeatherNederbörd>();
+            List<WeatherGrad> weatherGrad = new List<WeatherGrad>();
+            List<WeatherVindstyrka> weatherVind = new List<WeatherVindstyrka>();
 
 
             foreach (var c in weatherDatas.Results)
             {
-                
-
-                weather.Add(new WeatherSorted
+                if (typ.Equals("Nederbörd"))
                 {
-                    Tid = c.Tid,
-                    PartitionKey = c.PartitionKey,
-                    Nederbörd = c.Nederbörd
-                  
-                });
+                    weatherNederbörd.Add(new WeatherNederbörd
+                    {
+                        Tid = c.Tid,
+                        PartitionKey = c.PartitionKey,
+                        Nederbörd = c.Nederbörd
+                    });
+                    return weatherNederbörd != null
+                ? (ActionResult)new OkObjectResult(weatherNederbörd)
+                : new BadRequestObjectResult("Attans");
+                }
+                else if (typ.Equals("Vindstyrka"))
+                    {
+                    weatherVind.Add(new WeatherVindstyrka
+                    {
+                        Tid = c.Tid,
+                        PartitionKey = c.PartitionKey,
+                        Vindstyrka = c.Vindstyrka
+                    });
+                    return weatherVind != null
+                  ? (ActionResult)new OkObjectResult(weatherVind)
+                     : new BadRequestObjectResult("Attans");
+
+                } else
+                {
+                    weatherGrad.Add(new WeatherGrad
+                    {
+                        Tid = c.Tid,
+                        PartitionKey = c.PartitionKey,
+                        Grad = c.Grad
+
+                    });
+                    return weatherGrad != null
+                  ? (ActionResult)new OkObjectResult(weatherGrad)
+                     : new BadRequestObjectResult("Attans");
+                }
 
             }
 
-            return weather != null
-                ? (ActionResult)new OkObjectResult(weather)
-                : new BadRequestObjectResult("Nothing.");
-
+            return weatherGrad != null
+                     ? (ActionResult)new OkObjectResult(weatherGrad)
+                     : new BadRequestObjectResult("Attans");
 
         }
-
-
 
 
     }
