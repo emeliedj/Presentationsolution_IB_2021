@@ -50,7 +50,6 @@ namespace Presentationsolution_IB_2021
                 [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata, ILogger log, string source, string startDate, string endDate)
         {
 
-
             string sourceFilter = TableQuery.GenerateFilterCondition(
              nameof(WeatherEntity.PartitionKey),
              QueryComparisons.Equal, source);
@@ -62,7 +61,6 @@ namespace Presentationsolution_IB_2021
             string endDateFilter = TableQuery.GenerateFilterCondition(
             nameof(WeatherEntity.Tid),
             QueryComparisons.LessThanOrEqual, endDate);
-
 
 
             string finalfilter = TableQuery.CombineFilters(TableQuery.CombineFilters(sourceFilter, TableOperators.And, startDateFilter), TableOperators.And, endDateFilter);
@@ -95,28 +93,29 @@ namespace Presentationsolution_IB_2021
 
             string finalfilter = TableQuery.CombineFilters(TableQuery.CombineFilters(sourceFilter, TableOperators.And, startDateFilter), TableOperators.And, endDateFilter);
 
-            
+
             if (typ.Equals("Nederbörd"))
             {
                 TableQuery<WeatherNederbörd> projectionQuery = new TableQuery<WeatherNederbörd>().Where(finalfilter).Select(
                 new string[] { "PartitionKey", "Tid", typ });
                 var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
                 return new OkObjectResult(weatherDatas);
-      
+
             } else if (typ.Equals("Vindstyrka"))
             {
                 TableQuery<WeatherVindstyrka> projectionQuery = new TableQuery<WeatherVindstyrka>().Where(finalfilter).Select(
                 new string[] { "PartitionKey", "Tid", typ });
                 var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
                 return new OkObjectResult(weatherDatas);
-            } else
+            } else if (typ.Equals("Grad")
             {
                 TableQuery<WeatherGrad> projectionQuery = new TableQuery<WeatherGrad>().Where(finalfilter).Select(
                 new string[] { "PartitionKey", "Tid", typ });
                 var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
                 return new OkObjectResult(weatherDatas);
+            } else {
+                return new BadRequestObjectResult("Attans, skriv in en vädertyp");
             }
-            return new BadRequestObjectResult("Attans");
 
 
 
