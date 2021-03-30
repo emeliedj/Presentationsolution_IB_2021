@@ -103,14 +103,21 @@ namespace Presentationsolution_IB_2021
 
             var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
             List<WeatherSorted> weather = new List<WeatherSorted>();
+
+
             foreach (var c in weatherDatas.Results)
             {
+                if (c.Typ.Equals(1))
+                {
+                    
+                }
+
                 weather.Add(new WeatherSorted
                 {
                     Tid = c.Tid,
                     PartitionKey = c.PartitionKey,
-                    WeatherTypes = c.WeatherTypes
-
+                    Nederbörd = c.Nederbörd
+                  
                 });
 
             }
