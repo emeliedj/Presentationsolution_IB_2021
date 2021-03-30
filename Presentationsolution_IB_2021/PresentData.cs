@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.WebJobs.Host;
+using System.Collections.Generic;
 
 namespace Presentationsolution_IB_2021
 {
@@ -24,43 +25,84 @@ namespace Presentationsolution_IB_2021
             var segment = await weatherdata.ExecuteQuerySegmentedAsync(query, null);
             return new OkObjectResult(segment);
         }
-       
-    
 
-     [FunctionName("GetWeatherSource")]
+
+
+        [FunctionName("GetWeatherSource")]
         public static IActionResult GetWeatherStation(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "weather/{partitionKey}")] HttpRequest req,
-                [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata, ILogger log, string partitionKey)
+               [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "weather/source/{source}")] HttpRequest req,
+                   [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata, ILogger log, string source)
         {
 
             var filterQuery = TableQuery.GenerateFilterCondition(
                 nameof(WeatherEntity.PartitionKey),
-                QueryComparisons.Equal, partitionKey);
+                QueryComparisons.Equal, source);
 
             var query = new TableQuery<WeatherEntity>().Where(filterQuery);
             var segment = weatherdata.ExecuteQuerySegmented(query, null);
             return new OkObjectResult(segment);
         }
 
-        
-        [FunctionName("GetWeatherDate")]
-        public static IActionResult GetWeatherDate(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "weather/datum/{datum}")] HttpRequest req,
-                [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata, ILogger log, string datum)
+        [FunctionName("GetWeatherByDate")]
+        public static IActionResult GetWeatherByDate(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "weather/source/{source}/startDate/{startDate}/endDate/{endDate}")] HttpRequest req,
+                [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata, ILogger log, string source, string startDate, string endDate)
         {
 
-            string tid = nameof(WeatherEntity.Tid);
-            string datumet = tid.Substring(0, 9);
+            string sourceFilter = TableQuery.GenerateFilterCondition(
+              nameof(WeatherEntity.PartitionKey),
+              QueryComparisons.Equal, source);
 
-            var filterQuery = TableQuery.GenerateFilterCondition(
-                datumet,
-                QueryComparisons.Equal, datum);
+            string startDateFilter = TableQuery.GenerateFilterCondition(
+             nameof(WeatherEntity.Tid),
+             QueryComparisons.GreaterThanOrEqual, startDate);
 
-            var query = new TableQuery<WeatherEntity>().Where(filterQuery);
-            var segment = weatherdata.ExecuteQuerySegmented(query, null);
+            string endDateFilter = TableQuery.GenerateFilterCondition(
+            nameof(WeatherEntity.Tid),
+            QueryComparisons.LessThanOrEqual, endDate);
+
+
+
+            string finalfilter = TableQuery.CombineFilters(TableQuery.CombineFilters(sourceFilter, TableOperators.And, startDateFilter), TableOperators.And, endDateFilter);
+
+
+            TableQuery<WeatherEntity> rangeQuery = new TableQuery<WeatherEntity>().Where(finalfilter);
+            var segment = weatherdata.ExecuteQuerySegmented(rangeQuery, null);
+
+
             return new OkObjectResult(segment);
         }
 
+
+
+        [FunctionName("GetWeatherType")]
+        public static async Task<IActionResult> GetWeatherType(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "weather/source/{source}/startDate/{startDate}/endDate/{endDate}/type/{type}")] HttpRequest req,
+                [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata, ILogger log, string startDate, string endDate)
+        {
+
+            TableQuery<WeatherSorted> projectionQuery = new TableQuery<WeatherSorted>().Select(
+             new string[] { "PartitionKey", "Tid" });
+
+            var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
+            List<WeatherSorted> weather = new List<WeatherSorted>();
+            foreach (var c in weatherDatas.Results)
+            {
+                weather.Add(new WeatherSorted
+                {
+                    Tid = c.Tid,
+                    PartitionKey = c.PartitionKey,
+                    Nederbörd = c.Nederbörd,
+
+                });
+
+            }
+
+            return weather != null
+                ? (ActionResult)new OkObjectResult(weather)
+                : new BadRequestObjectResult("Nothing.");
+
+        }
     }
 
 
