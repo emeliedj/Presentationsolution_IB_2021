@@ -28,7 +28,7 @@ namespace Presentationsolution_IB_2021
 
 
 
-        [FunctionName("GetWeatherSource")]
+        [FunctionName("GetWeatherBySource")]
         public static IActionResult GetWeatherStation(
                [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "weather/{partitionKey}")] HttpRequest req,
                    [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata, ILogger log, string source)
@@ -44,9 +44,9 @@ namespace Presentationsolution_IB_2021
         }
 
 
-        [FunctionName("GetWeatherDate")]
+        [FunctionName("GetWeatherByDate")]
         public static IActionResult GetWeatherByDate(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "weather/datum/{datum}")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "weather/source/{source}/startDate/{startDate}/endDate/{endDate}")] HttpRequest req,
                 [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata, ILogger log, string source, string startDate, string endDate)
         {
 
@@ -79,7 +79,7 @@ namespace Presentationsolution_IB_2021
             return new OkObjectResult(segment);
         }
 
-        [FunctionName("GetAllWeather")]
+        [FunctionName("GetWeatherByType")]
         public static async Task<IActionResult> GetWeatherByType(
            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "weather/source/{source}/startDate/{startDate}/endDate/{endDate}/typ/{typ}")] HttpRequest req,
            [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata,
