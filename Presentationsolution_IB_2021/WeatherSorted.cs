@@ -18,7 +18,6 @@ namespace Presentationsolution_IB_2021
         private List<WeatherType> _weatherTypes = new List<WeatherType>();
 
         public string Tid { get; set; }
-        public WeatherType Typ { get; set; }
         public string Nederbörd { get; set; }
     }
 }
