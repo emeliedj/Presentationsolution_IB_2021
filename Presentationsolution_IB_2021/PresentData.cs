@@ -95,63 +95,30 @@ namespace Presentationsolution_IB_2021
 
             string finalfilter = TableQuery.CombineFilters(TableQuery.CombineFilters(sourceFilter, TableOperators.And, startDateFilter), TableOperators.And, endDateFilter);
 
-
-
-      
-            TableQuery<WeatherEntity> projectionQuery = new TableQuery<WeatherEntity>().Where(finalfilter).Select(
-              new string[] { "PartitionKey", "Tid", typ });
-
-            var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
-            List<WeatherNederbörd> weatherNederbörd = new List<WeatherNederbörd>();
-            List<WeatherGrad> weatherGrad = new List<WeatherGrad>();
-            List<WeatherVindstyrka> weatherVind = new List<WeatherVindstyrka>();
-
-
-            foreach (var c in weatherDatas.Results)
+            
+            if (typ.Equals("Nederbörd"))
             {
-                if (typ.Equals("Nederbörd"))
-                {
-                    weatherNederbörd.Add(new WeatherNederbörd
-                    {
-                        Tid = c.Tid,
-                        PartitionKey = c.PartitionKey,
-                        Nederbörd = c.Nederbörd
-                    });
-                    return weatherNederbörd != null
-                ? (ActionResult)new OkObjectResult(weatherNederbörd)
-                : new BadRequestObjectResult("Attans");
-                }
-                else if (typ.Equals("Vindstyrka"))
-                    {
-                    weatherVind.Add(new WeatherVindstyrka
-                    {
-                        Tid = c.Tid,
-                        PartitionKey = c.PartitionKey,
-                        Vindstyrka = c.Vindstyrka
-                    });
-                    return weatherVind != null
-                  ? (ActionResult)new OkObjectResult(weatherVind)
-                     : new BadRequestObjectResult("Attans");
-
-                } else
-                {
-                    weatherGrad.Add(new WeatherGrad
-                    {
-                        Tid = c.Tid,
-                        PartitionKey = c.PartitionKey,
-                        Grad = c.Grad
-
-                    });
-                    return weatherGrad != null
-                  ? (ActionResult)new OkObjectResult(weatherGrad)
-                     : new BadRequestObjectResult("Attans");
-                }
-
+                TableQuery<WeatherNederbörd> projectionQuery = new TableQuery<WeatherNederbörd>().Where(finalfilter).Select(
+                new string[] { "PartitionKey", "Tid", typ });
+                var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
+                return new OkObjectResult(weatherDatas);
+      
+            } else if (typ.Equals("Vindstyrka"))
+            {
+                TableQuery<WeatherVindstyrka> projectionQuery = new TableQuery<WeatherVindstyrka>().Where(finalfilter).Select(
+                new string[] { "PartitionKey", "Tid", typ });
+                var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
+                return new OkObjectResult(weatherDatas);
+            } else
+            {
+                TableQuery<WeatherGrad> projectionQuery = new TableQuery<WeatherGrad>().Where(finalfilter).Select(
+                new string[] { "PartitionKey", "Tid", typ });
+                var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
+                return new OkObjectResult(weatherDatas);
             }
+            return new BadRequestObjectResult("Attans");
 
-            return weatherGrad != null
-                     ? (ActionResult)new OkObjectResult(weatherGrad)
-                     : new BadRequestObjectResult("Attans");
+
 
         }
 
