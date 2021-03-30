@@ -77,9 +77,9 @@ namespace Presentationsolution_IB_2021
 
         [FunctionName("GetWeatherByType")]
         public static async Task<IActionResult> GetWeatherByType(
-           [HttpTrigger(AuthorizationLevel.Function, "get", Route = "weather/source/{source}/startDate/{startDate}/endDate/{endDate}/typ/{typ}")] HttpRequest req,
+           [HttpTrigger(AuthorizationLevel.Function, "get", Route = "weather/source/{source}/startDate/{startDate}/endDate/{endDate}/typ/{WeatherType}")] HttpRequest req,
            [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata,
-           ILogger log, string source, string startDate, string endDate, string typ)
+           ILogger log, string source, string startDate, string endDate, string WeatherType)
         {
             string sourceFilter = TableQuery.GenerateFilterCondition(
             nameof(WeatherEntity.PartitionKey),
@@ -99,7 +99,7 @@ namespace Presentationsolution_IB_2021
 
 
             TableQuery<WeatherSorted> projectionQuery = new TableQuery<WeatherSorted>().Where(finalfilter).Select(
-              new string[] { "PartitionKey", "Tid" });
+              new string[] { "PartitionKey", "Tid", WeatherType });
 
             var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
             List<WeatherSorted> weather = new List<WeatherSorted>();
@@ -109,7 +109,7 @@ namespace Presentationsolution_IB_2021
                 {
                     Tid = c.Tid,
                     PartitionKey = c.PartitionKey,
-                    Nederbörd = c.Nederbörd,
+                    WeatherTypes = c.WeatherTypes
 
                 });
 
