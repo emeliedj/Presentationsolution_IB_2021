@@ -30,7 +30,7 @@ namespace Presentationsolution_IB_2021
 
         [FunctionName("GetWeatherBySource")]
         public static IActionResult GetWeatherStation(
-               [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "weather/{partitionKey}")] HttpRequest req,
+               [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "weather/source/{source}")] HttpRequest req,
                    [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata, ILogger log, string source)
         {
 
@@ -55,8 +55,6 @@ namespace Presentationsolution_IB_2021
              nameof(WeatherEntity.PartitionKey),
              QueryComparisons.Equal, source);
 
-
-
             string startDateFilter = TableQuery.GenerateFilterCondition(
              nameof(WeatherEntity.Tid),
              QueryComparisons.GreaterThanOrEqual, startDate);
@@ -68,8 +66,6 @@ namespace Presentationsolution_IB_2021
 
 
             string finalfilter = TableQuery.CombineFilters(TableQuery.CombineFilters(sourceFilter, TableOperators.And, startDateFilter), TableOperators.And, endDateFilter);
-
-
 
 
             TableQuery<WeatherEntity> rangeQuery = new TableQuery<WeatherEntity>().Where(finalfilter);
@@ -86,6 +82,7 @@ namespace Presentationsolution_IB_2021
            ILogger log, string source, string startDate, string endDate, string typ)
         {
             
+
 
             TableQuery<WeatherSorted> projectionQuery = new TableQuery<WeatherSorted>().Select(
               new string[] { "PartitionKey", "Tid" });
