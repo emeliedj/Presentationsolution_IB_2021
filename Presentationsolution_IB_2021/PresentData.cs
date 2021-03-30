@@ -79,7 +79,7 @@ namespace Presentationsolution_IB_2021
         public static async Task<IActionResult> GetWeatherByType(
            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "weather/source/{source}/startDate/{startDate}/endDate/{endDate}/typ/{WeatherType}")] HttpRequest req,
            [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata,
-           ILogger log, string source, string startDate, string endDate, string WeatherType)
+           ILogger log, string source, string startDate, string endDate, int WeatherType)
         {
             string sourceFilter = TableQuery.GenerateFilterCondition(
             nameof(WeatherEntity.PartitionKey),
@@ -93,24 +93,33 @@ namespace Presentationsolution_IB_2021
             nameof(WeatherEntity.Tid),
             QueryComparisons.LessThanOrEqual, endDate);
 
-
-
             string finalfilter = TableQuery.CombineFilters(TableQuery.CombineFilters(sourceFilter, TableOperators.And, startDateFilter), TableOperators.And, endDateFilter);
+
+            string typ;
+
+            if (WeatherType.Equals(0))
+            {
+                typ = "Nederbörd";
+            }
+            else if (WeatherType.Equals(1))
+            {
+                typ = "Grad";
+            }
+            else { 
+                typ = "Vindstyrka";
+            }
 
 
             TableQuery<WeatherSorted> projectionQuery = new TableQuery<WeatherSorted>().Where(finalfilter).Select(
-              new string[] { "PartitionKey", "Tid", WeatherType });
+              new string[] { "PartitionKey", "Tid", typ });
 
             var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
-            List<WeatherSorted> weather = new List<WeatherSorted>();
+            List<WeatherSorted> weather = new List<WeatherSorted>(); 
 
 
             foreach (var c in weatherDatas.Results)
             {
-                if (c.Typ.Equals(1))
-                {
-                    
-                }
+                
 
                 weather.Add(new WeatherSorted
                 {
