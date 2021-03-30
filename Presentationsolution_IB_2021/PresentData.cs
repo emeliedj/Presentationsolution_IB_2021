@@ -81,10 +81,24 @@ namespace Presentationsolution_IB_2021
            [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata,
            ILogger log, string source, string startDate, string endDate, string typ)
         {
-            
+            string sourceFilter = TableQuery.GenerateFilterCondition(
+            nameof(WeatherEntity.PartitionKey),
+            QueryComparisons.Equal, source);
+
+            string startDateFilter = TableQuery.GenerateFilterCondition(
+             nameof(WeatherEntity.Tid),
+             QueryComparisons.GreaterThanOrEqual, startDate);
+
+            string endDateFilter = TableQuery.GenerateFilterCondition(
+            nameof(WeatherEntity.Tid),
+            QueryComparisons.LessThanOrEqual, endDate);
 
 
-            TableQuery<WeatherSorted> projectionQuery = new TableQuery<WeatherSorted>().Select(
+
+            string finalfilter = TableQuery.CombineFilters(TableQuery.CombineFilters(sourceFilter, TableOperators.And, startDateFilter), TableOperators.And, endDateFilter);
+
+
+            TableQuery<WeatherSorted> projectionQuery = new TableQuery<WeatherSorted>().Where(finalfilter).Select(
               new string[] { "PartitionKey", "Tid" });
 
             var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
