@@ -36,7 +36,7 @@ namespace Presentationsolution_IB_2021
 
             var filterQuery = TableQuery.GenerateFilterCondition(
                 nameof(WeatherEntity.PartitionKey),
-                QueryComparisons.Equal, source);
+                QueryComparisons.Equal, source.ToLower());
 
             var query = new TableQuery<WeatherEntity>().Where(filterQuery);
             var segment = weatherdata.ExecuteQuerySegmented(query, null);
@@ -49,28 +49,29 @@ namespace Presentationsolution_IB_2021
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "weather/source/{source}/startDate/{startDate}/endDate/{endDate}")] HttpRequest req,
                 [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata, ILogger log, string source, string startDate, string endDate)
         {
+            
+                string sourceFilter = TableQuery.GenerateFilterCondition(
+                 nameof(WeatherEntity.PartitionKey),
+                 QueryComparisons.Equal, source.ToLower());
 
-            string sourceFilter = TableQuery.GenerateFilterCondition(
-             nameof(WeatherEntity.PartitionKey),
-             QueryComparisons.Equal, source);
+                string startDateFilter = TableQuery.GenerateFilterCondition(
+                 nameof(WeatherEntity.Tid),
+                 QueryComparisons.GreaterThanOrEqual, startDate);
 
-            string startDateFilter = TableQuery.GenerateFilterCondition(
-             nameof(WeatherEntity.Tid),
-             QueryComparisons.GreaterThanOrEqual, startDate);
-
-            string endDateFilter = TableQuery.GenerateFilterCondition(
-            nameof(WeatherEntity.Tid),
-            QueryComparisons.LessThanOrEqual, endDate);
-
-
-            string finalfilter = TableQuery.CombineFilters(TableQuery.CombineFilters(sourceFilter, TableOperators.And, startDateFilter), TableOperators.And, endDateFilter);
+                string endDateFilter = TableQuery.GenerateFilterCondition(
+                nameof(WeatherEntity.Tid),
+                QueryComparisons.LessThanOrEqual, endDate);
 
 
-            TableQuery<WeatherEntity> rangeQuery = new TableQuery<WeatherEntity>().Where(finalfilter);
-            var segment = weatherdata.ExecuteQuerySegmented(rangeQuery, null);
+                string finalfilter = TableQuery.CombineFilters(TableQuery.CombineFilters(sourceFilter, TableOperators.And, startDateFilter), TableOperators.And, endDateFilter);
 
 
-            return new OkObjectResult(segment);
+                TableQuery<WeatherEntity> rangeQuery = new TableQuery<WeatherEntity>().Where(finalfilter);
+                var segment = weatherdata.ExecuteQuerySegmented(rangeQuery, null);
+
+
+                return new OkObjectResult(segment);
+                                 
         }
 
         [FunctionName("GetWeatherByType")]
@@ -114,7 +115,7 @@ namespace Presentationsolution_IB_2021
                 var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
                 return new OkObjectResult(weatherDatas);
             } else {
-                return new BadRequestObjectResult("Attans, skriv in en vädertyp");
+                return new BadRequestObjectResult("Attans, kontrollera din inmatning. Läs API-dokumentationen för hjälp.");
             }
 
 
