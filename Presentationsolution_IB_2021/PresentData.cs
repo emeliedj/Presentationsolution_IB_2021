@@ -19,11 +19,11 @@ namespace Presentationsolution_IB_2021
         [FunctionName("GetAllWeather")]
         public static async Task<IActionResult> GetWeather(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "weather")] HttpRequest req,
-            [Table("weatherdatastab", Connection = "AzureWebJobsStorage")] CloudTable weatherdatastab,
+            [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata,
             ILogger log)
         {
             var query = new TableQuery<WeatherEntity>();
-            var segment = await weatherdatastab.ExecuteQuerySegmentedAsync(query, null);
+            var segment = await weatherdata.ExecuteQuerySegmentedAsync(query, null);
             return segment.Results.Any() ? new OkObjectResult(segment) : new OkObjectResult("Attans, kontrollera din inmatning. Läs API-dokumentationen för hjälp.");
         }
 
@@ -32,7 +32,7 @@ namespace Presentationsolution_IB_2021
         [FunctionName("GetWeatherBySource")]
         public static IActionResult GetWeatherStation(
                [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "weather/source/{source}")] HttpRequest req,
-                   [Table("weatherdatastab", Connection = "AzureWebJobsStorage")] CloudTable weatherdatastab, ILogger log, string source)
+                   [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata, ILogger log, string source)
         {
 
             var filterQuery = TableQuery.GenerateFilterCondition(
@@ -40,7 +40,7 @@ namespace Presentationsolution_IB_2021
                 QueryComparisons.Equal, source.ToLower());
 
             var query = new TableQuery<WeatherEntity>().Where(filterQuery);
-            var segment = weatherdatastab.ExecuteQuerySegmented(query, null);
+            var segment = weatherdata.ExecuteQuerySegmented(query, null);
             return segment.Results.Any() ? new OkObjectResult(segment) : new OkObjectResult("Attans, kontrollera din inmatning. Läs API-dokumentationen för hjälp.");
         }
 
@@ -48,7 +48,7 @@ namespace Presentationsolution_IB_2021
         [FunctionName("GetWeatherByDate")]
         public static IActionResult GetWeatherByDate(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "weather/source/{source}/startDate/{startDate}/endDate/{endDate}")] HttpRequest req,
-                [Table("weatherdatastab", Connection = "AzureWebJobsStorage")] CloudTable weatherdatastab, ILogger log, string source, string startDate, string endDate)
+                [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata, ILogger log, string source, string startDate, string endDate)
         {
             
                 string sourceFilter = TableQuery.GenerateFilterCondition(
@@ -68,7 +68,7 @@ namespace Presentationsolution_IB_2021
 
 
                 TableQuery<WeatherEntity> rangeQuery = new TableQuery<WeatherEntity>().Where(finalfilter);
-                var segment = weatherdatastab.ExecuteQuerySegmented(rangeQuery, null);
+                var segment = weatherdata.ExecuteQuerySegmented(rangeQuery, null);
 
 
             return segment.Results.Any() ? new OkObjectResult(segment) : new OkObjectResult("Attans, kontrollera din inmatning. Läs API-dokumentationen för hjälp.");
@@ -78,7 +78,7 @@ namespace Presentationsolution_IB_2021
         [FunctionName("GetWeatherByType")]
         public static async Task<IActionResult> GetWeatherByType(
            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "weather/source/{source}/startDate/{startDate}/endDate/{endDate}/typ/{typ}")] HttpRequest req,
-           [Table("weatherdatastab", Connection = "AzureWebJobsStorage")] CloudTable weatherdatastab,
+           [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata,
            ILogger log, string source, string startDate, string endDate, string typ)
         {
 
@@ -101,20 +101,20 @@ namespace Presentationsolution_IB_2021
             {
                 TableQuery<WeatherNederbörd> projectionQuery = new TableQuery<WeatherNederbörd>().Where(finalfilter).Select(
                 new string[] { "PartitionKey", "Tid", "Nederbörd" });
-                var weatherDatas = await weatherdatastab.ExecuteQuerySegmentedAsync(projectionQuery, null);
+                var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
                 return new OkObjectResult(weatherDatas);
 
             } else if (typ.ToLower().Equals("Vindstyrka".ToLower()))
             {
                 TableQuery<WeatherVindstyrka> projectionQuery = new TableQuery<WeatherVindstyrka>().Where(finalfilter).Select(
                 new string[] { "PartitionKey", "Tid", "Vindstyrka" });
-                var weatherDatas = await weatherdatastab.ExecuteQuerySegmentedAsync(projectionQuery, null);
+                var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
                 return new OkObjectResult(weatherDatas);
             } else if (typ.ToLower().Equals("Grad".ToLower()))
             {
                 TableQuery<WeatherGrad> projectionQuery = new TableQuery<WeatherGrad>().Where(finalfilter).Select(
                 new string[] { "PartitionKey", "Tid", "Grad" });
-                var weatherDatas = await weatherdatastab.ExecuteQuerySegmentedAsync(projectionQuery, null);
+                var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
                 return new OkObjectResult(weatherDatas);
             } else {
                 return new BadRequestObjectResult("Attans, kontrollera din inmatning. Läs API-dokumentationen för hjälp.");
