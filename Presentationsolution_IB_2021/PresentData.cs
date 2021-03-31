@@ -116,7 +116,7 @@ namespace Presentationsolution_IB_2021
                 var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
                 return new OkObjectResult(weatherDatas);
             } else {
-                return new BadRequestObjectResult("Attans, kontrollera din inmatning. Läs API-dokumentationen för hjälp");
+                return new BadRequestObjectResult("Attans, kontrollera din inmatning. Läs API-dokumentationen för hjälp.");
             }
 
 
