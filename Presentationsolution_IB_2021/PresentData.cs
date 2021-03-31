@@ -79,7 +79,7 @@ namespace Presentationsolution_IB_2021
         public static async Task<IActionResult> GetWeatherByType(
            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "weather/source/{source}/startDate/{startDate}/endDate/{endDate}/typ/{typ}")] HttpRequest req,
            [Table("weatherdatastab", Connection = "AzureWebJobsStorage")] CloudTable weatherdatastab,
-           ILogger log, string source, string startDate, string endDate, string typ)
+           ILogger log, string source, string startDate, string endDate, string weatherType)
         {
 
             string sourceFilter = TableQuery.GenerateFilterCondition(
@@ -97,20 +97,20 @@ namespace Presentationsolution_IB_2021
             string finalfilter = TableQuery.CombineFilters(TableQuery.CombineFilters(sourceFilter, TableOperators.And, startDateFilter), TableOperators.And, endDateFilter);
 
 
-            if (typ.ToLower().Equals("Nederbörd".ToLower()))
+            if (weatherType.ToLower().Equals("Nederbörd".ToLower()))
             {
                 TableQuery<WeatherNederbörd> projectionQuery = new TableQuery<WeatherNederbörd>().Where(finalfilter).Select(
                 new string[] { "PartitionKey", "Tid", "Nederbörd" });
                 var weatherDatas = await weatherdatastab.ExecuteQuerySegmentedAsync(projectionQuery, null);
                 return new OkObjectResult(weatherDatas);
 
-            } else if (typ.ToLower().Equals("Vindstyrka".ToLower()))
+            } else if (weatherType.ToLower().Equals("Vindstyrka".ToLower()))
             {
                 TableQuery<WeatherVindstyrka> projectionQuery = new TableQuery<WeatherVindstyrka>().Where(finalfilter).Select(
                 new string[] { "PartitionKey", "Tid", "Vindstyrka" });
                 var weatherDatas = await weatherdatastab.ExecuteQuerySegmentedAsync(projectionQuery, null);
                 return new OkObjectResult(weatherDatas);
-            } else if (typ.ToLower().Equals("Grad".ToLower()))
+            } else if (weatherType.ToLower().Equals("Grad".ToLower()))
             {
                 TableQuery<WeatherGrad> projectionQuery = new TableQuery<WeatherGrad>().Where(finalfilter).Select(
                 new string[] { "PartitionKey", "Tid", "Grad" });
