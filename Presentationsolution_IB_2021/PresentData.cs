@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.WebJobs.Host;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Presentationsolution_IB_2021
 {
@@ -23,7 +24,7 @@ namespace Presentationsolution_IB_2021
         {
             var query = new TableQuery<WeatherEntity>();
             var segment = await weatherdata.ExecuteQuerySegmentedAsync(query, null);
-            return new OkObjectResult(segment);
+            return segment.Results.Any() ? new OkObjectResult(segment) : new OkObjectResult("Attans, kontrollera din inmatning. Läs API-dokumentationen för hjälp.");
         }
 
 
@@ -40,7 +41,7 @@ namespace Presentationsolution_IB_2021
 
             var query = new TableQuery<WeatherEntity>().Where(filterQuery);
             var segment = weatherdata.ExecuteQuerySegmented(query, null);
-            return new OkObjectResult(segment);
+            return segment.Results.Any() ? new OkObjectResult(segment) : new OkObjectResult("Attans, kontrollera din inmatning. Läs API-dokumentationen för hjälp.");
         }
 
 
@@ -70,8 +71,8 @@ namespace Presentationsolution_IB_2021
                 var segment = weatherdata.ExecuteQuerySegmented(rangeQuery, null);
 
 
-                return new OkObjectResult(segment);
-                                 
+            return segment.Results.Any() ? new OkObjectResult(segment) : new OkObjectResult("Attans, kontrollera din inmatning. Läs API-dokumentationen för hjälp.");
+
         }
 
         [FunctionName("GetWeatherByType")]
