@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Presentationsolution_IB_2021
 {
-    public enum WeatherType
+    public enum WeatherType 
     {
         Nederbörd, 
         Vindstyrka,
@@ -13,11 +13,14 @@ namespace Presentationsolution_IB_2021
 
     }
 
-    public class WeatherSorted : TableEntity
+
+    public class WeatherNederbörd : TableEntity
     {
-        private List<WeatherType> _weatherTypes = new List<WeatherType>();
+        //private List<WeatherType> _weatherTypes = new List<WeatherType>();
 
         public string Tid { get; set; }
+
         public string Nederbörd { get; set; }
+  
     }
 }

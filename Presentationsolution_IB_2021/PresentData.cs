@@ -50,7 +50,6 @@ namespace Presentationsolution_IB_2021
                 [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata, ILogger log, string source, string startDate, string endDate)
         {
 
-
             string sourceFilter = TableQuery.GenerateFilterCondition(
              nameof(WeatherEntity.PartitionKey),
              QueryComparisons.Equal, source);
@@ -62,7 +61,6 @@ namespace Presentationsolution_IB_2021
             string endDateFilter = TableQuery.GenerateFilterCondition(
             nameof(WeatherEntity.Tid),
             QueryComparisons.LessThanOrEqual, endDate);
-
 
 
             string finalfilter = TableQuery.CombineFilters(TableQuery.CombineFilters(sourceFilter, TableOperators.And, startDateFilter), TableOperators.And, endDateFilter);
@@ -77,9 +75,9 @@ namespace Presentationsolution_IB_2021
 
         [FunctionName("GetWeatherByType")]
         public static async Task<IActionResult> GetWeatherByType(
-           [HttpTrigger(AuthorizationLevel.Function, "get", Route = "weather/source/{source}/startDate/{startDate}/endDate/{endDate}/typ/{WeatherType}")] HttpRequest req,
+           [HttpTrigger(AuthorizationLevel.Function, "get", Route = "weather/source/{source}/startDate/{startDate}/endDate/{endDate}/typ/{typ}")] HttpRequest req,
            [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata,
-           ILogger log, string source, string startDate, string endDate, int WeatherType)
+           ILogger log, string source, string startDate, string endDate, string typ)
         {
             string sourceFilter = TableQuery.GenerateFilterCondition(
             nameof(WeatherEntity.PartitionKey),
@@ -95,50 +93,33 @@ namespace Presentationsolution_IB_2021
 
             string finalfilter = TableQuery.CombineFilters(TableQuery.CombineFilters(sourceFilter, TableOperators.And, startDateFilter), TableOperators.And, endDateFilter);
 
-            string typ;
 
-            if (WeatherType.Equals(0))
+            if (typ.Equals("Nederbörd"))
             {
-                typ = "Nederbörd";
-            }
-            else if (WeatherType.Equals(1))
+                TableQuery<WeatherNederbörd> projectionQuery = new TableQuery<WeatherNederbörd>().Where(finalfilter).Select(
+                new string[] { "PartitionKey", "Tid", typ });
+                var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
+                return new OkObjectResult(weatherDatas);
+
+            } else if (typ.Equals("Vindstyrka"))
             {
-                typ = "Grad";
-            }
-            else { 
-                typ = "Vindstyrka";
-            }
-
-
-            TableQuery<WeatherSorted> projectionQuery = new TableQuery<WeatherSorted>().Where(finalfilter).Select(
-              new string[] { "PartitionKey", "Tid", typ });
-
-            var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
-            List<WeatherSorted> weather = new List<WeatherSorted>(); 
-
-
-            foreach (var c in weatherDatas.Results)
+                TableQuery<WeatherVindstyrka> projectionQuery = new TableQuery<WeatherVindstyrka>().Where(finalfilter).Select(
+                new string[] { "PartitionKey", "Tid", typ });
+                var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
+                return new OkObjectResult(weatherDatas);
+            } else if (typ.Equals("Grad")
             {
-                
-
-                weather.Add(new WeatherSorted
-                {
-                    Tid = c.Tid,
-                    PartitionKey = c.PartitionKey,
-                    Nederbörd = c.Nederbörd
-                  
-                });
-
+                TableQuery<WeatherGrad> projectionQuery = new TableQuery<WeatherGrad>().Where(finalfilter).Select(
+                new string[] { "PartitionKey", "Tid", typ });
+                var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
+                return new OkObjectResult(weatherDatas);
+            } else {
+                return new BadRequestObjectResult("Attans, skriv in en vädertyp");
             }
 
-            return weather != null
-                ? (ActionResult)new OkObjectResult(weather)
-                : new BadRequestObjectResult("Nothing.");
 
 
         }
-
-
 
 
     }
