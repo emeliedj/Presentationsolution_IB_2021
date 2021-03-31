@@ -81,7 +81,7 @@ namespace Presentationsolution_IB_2021
         {
             string sourceFilter = TableQuery.GenerateFilterCondition(
             nameof(WeatherEntity.PartitionKey),
-            QueryComparisons.Equal, source);
+            QueryComparisons.Equal, source.ToLower());
 
             string startDateFilter = TableQuery.GenerateFilterCondition(
              nameof(WeatherEntity.Tid),
@@ -94,23 +94,23 @@ namespace Presentationsolution_IB_2021
             string finalfilter = TableQuery.CombineFilters(TableQuery.CombineFilters(sourceFilter, TableOperators.And, startDateFilter), TableOperators.And, endDateFilter);
 
 
-            if (typ.Equals("Nederbörd"))
+            if (typ.ToLower().Equals("Nederbörd".ToLower()))
             {
                 TableQuery<WeatherNederbörd> projectionQuery = new TableQuery<WeatherNederbörd>().Where(finalfilter).Select(
-                new string[] { "PartitionKey", "Tid", typ });
+                new string[] { "PartitionKey", "Tid", "Nederbörd" });
                 var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
                 return new OkObjectResult(weatherDatas);
 
-            } else if (typ.Equals("Vindstyrka"))
+            } else if (typ.ToLower().Equals("Vindstyrka".ToLower()))
             {
                 TableQuery<WeatherVindstyrka> projectionQuery = new TableQuery<WeatherVindstyrka>().Where(finalfilter).Select(
-                new string[] { "PartitionKey", "Tid", typ });
+                new string[] { "PartitionKey", "Tid", "Vindstyrka" });
                 var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
                 return new OkObjectResult(weatherDatas);
-            } else if (typ.Equals("Grad")
+            } else if (typ.ToLower().Equals("Grad".ToLower()))
             {
                 TableQuery<WeatherGrad> projectionQuery = new TableQuery<WeatherGrad>().Where(finalfilter).Select(
-                new string[] { "PartitionKey", "Tid", typ });
+                new string[] { "PartitionKey", "Tid", "Grad" });
                 var weatherDatas = await weatherdata.ExecuteQuerySegmentedAsync(projectionQuery, null);
                 return new OkObjectResult(weatherDatas);
             } else {
