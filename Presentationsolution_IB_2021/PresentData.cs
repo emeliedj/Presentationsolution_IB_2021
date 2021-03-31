@@ -24,7 +24,7 @@ namespace Presentationsolution_IB_2021
         {
             var query = new TableQuery<WeatherEntity>();
             var segment = await weatherdata.ExecuteQuerySegmentedAsync(query, null);
-            return segment.Results.Any() ? new OkObjectResult(segment) : new OkObjectResult("Attans, kontrollera din inmatning. Läs API-dokumentationen för hjälp.");
+            return segment.Results.Any() ? new OkObjectResult(segment) : new OkObjectResult("Attans, kontrollera din inmatning. Läs API-dokumentationen för hjälp");
         }
 
 
@@ -81,6 +81,7 @@ namespace Presentationsolution_IB_2021
            [Table("weatherdata", Connection = "AzureWebJobsStorage")] CloudTable weatherdata,
            ILogger log, string source, string startDate, string endDate, string typ)
         {
+
             string sourceFilter = TableQuery.GenerateFilterCondition(
             nameof(WeatherEntity.PartitionKey),
             QueryComparisons.Equal, source.ToLower());
