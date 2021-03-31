@@ -9,10 +9,12 @@
 *.user
 *.userosscache
 *.sln.docstates
+*.slnx.sqlite
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 *.sqlite
+.suo
 
 # Build results
 [Dd]ebug/
