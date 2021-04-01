@@ -31,7 +31,7 @@ namespace Presentationsolution_IB_2021
 
         [FunctionName("GetWeatherBySource")]
         public static IActionResult GetWeatherStation(
-               [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "weather/source/{source}")] HttpRequest req,
+               [HttpTrigger(AuthorizationLevel.Function, "get", Route = "weather/source/{source}")] HttpRequest req,
                    [Table("weatherdatastab", Connection = "AzureWebJobsStorage")] CloudTable weatherdatastab, ILogger log, string source)
         {
 
@@ -47,7 +47,7 @@ namespace Presentationsolution_IB_2021
 
         [FunctionName("GetWeatherByDate")]
         public static IActionResult GetWeatherByDate(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "weather/source/{source}/startDate/{startDate}/endDate/{endDate}")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "weather/source/{source}/startDate/{startDate}/endDate/{endDate}")] HttpRequest req,
                 [Table("weatherdatastab", Connection = "AzureWebJobsStorage")] CloudTable weatherdatastab, ILogger log, string source, string startDate, string endDate)
         {
             
