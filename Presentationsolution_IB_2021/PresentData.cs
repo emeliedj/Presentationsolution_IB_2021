@@ -77,7 +77,7 @@ namespace Presentationsolution_IB_2021
 
         [FunctionName("GetWeatherByType")]
         public static async Task<IActionResult> GetWeatherByType(
-           [HttpTrigger(AuthorizationLevel.Function, "get", Route = "weather/source/{source}/startDate/{startDate}/endDate/{endDate}/typ/{typ}")] HttpRequest req,
+           [HttpTrigger(AuthorizationLevel.Function, "get", Route = "weather/source/{source}/startDate/{startDate}/endDate/{endDate}/weatherType/{weatherType}")] HttpRequest req,
            [Table("weatherdatastab", Connection = "AzureWebJobsStorage")] CloudTable weatherdatastab,
            ILogger log, string source, string startDate, string endDate, string weatherType)
         {
