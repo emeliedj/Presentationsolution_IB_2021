@@ -102,20 +102,21 @@ namespace Presentationsolution_IB_2021
                 TableQuery<WeatherNederbörd> projectionQuery = new TableQuery<WeatherNederbörd>().Where(finalfilter).Select(
                 new string[] { "PartitionKey", "Tid", "Nederbörd" });
                 var weatherDatas = await weatherdatastab.ExecuteQuerySegmentedAsync(projectionQuery, null);
-                return new OkObjectResult(weatherDatas);
+                return weatherDatas.Results.Any() ? new OkObjectResult(weatherDatas) : new OkObjectResult("Attans, kontrollera din inmatning. Läs API-dokumentationen för hjälp.");
 
             } else if (weatherType.ToLower().Equals("Vindstyrka".ToLower()))
             {
                 TableQuery<WeatherVindstyrka> projectionQuery = new TableQuery<WeatherVindstyrka>().Where(finalfilter).Select(
                 new string[] { "PartitionKey", "Tid", "Vindstyrka" });
                 var weatherDatas = await weatherdatastab.ExecuteQuerySegmentedAsync(projectionQuery, null);
-                return new OkObjectResult(weatherDatas);
+                return weatherDatas.Results.Any() ? new OkObjectResult(weatherDatas) : new OkObjectResult("Attans, kontrollera din inmatning. Läs API-dokumentationen för hjälp.");
+              
             } else if (weatherType.ToLower().Equals("Grad".ToLower()))
             {
                 TableQuery<WeatherGrad> projectionQuery = new TableQuery<WeatherGrad>().Where(finalfilter).Select(
                 new string[] { "PartitionKey", "Tid", "Grad" });
                 var weatherDatas = await weatherdatastab.ExecuteQuerySegmentedAsync(projectionQuery, null);
-                return new OkObjectResult(weatherDatas);
+                return weatherDatas.Results.Any() ? new OkObjectResult(weatherDatas) : new OkObjectResult("Attans, kontrollera din inmatning. Läs API-dokumentationen för hjälp.");
             } else {
                 return new BadRequestObjectResult("Attans, kontrollera din inmatning. Läs API-dokumentationen för hjälp.");
             }
